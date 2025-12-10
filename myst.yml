@@ -4,7 +4,7 @@ project:
   description: LangGraph 1.0 Plus教程
   keywords: [ "LangGraph", "Langchain" ]
   authors:
-    - name: Larry Li
+    - name: Author Larry Li（李志健）
   github: LarryLi93/dive-into-langgraph-plus
   toc:
     - file: book/home.ipynb
