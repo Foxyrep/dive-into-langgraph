@@ -20,7 +20,7 @@
   <p><a href="https://larryli93.github.io/dive-into-langgraph-plus/">📚 Online Reading</a></p>
   <h3>📖 LangGraph 1.0 Complete Guide Plus Edition</h3>
   <p><em>Build powerful agents from scratch</em></p>
-  <p><em>This tutorial extends Dive-Into-Langgraph with development Cases and business Solutions for advanced learning.</em></p>
+  <p><em>This tutorial extends Dive Langgraph（Official Website） with development Cases and business Solutions, Perfect for introductory + advanced tutorial use.</em></p>
 </div>
 
 ---
