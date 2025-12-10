@@ -29,4 +29,4 @@ site:
     logo_text: Dive Into LangGraph Plus
     logo: "./img/author.svg"
     hide_myst_branding: true
-  template: ./theme
+  template: book-theme
