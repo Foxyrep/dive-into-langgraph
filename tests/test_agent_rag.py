@@ -78,6 +78,10 @@ def load_txt_documents(data_dir: Path) -> list[Document]:
     """读取目录下的 txt 文件并按空行分割为 Document。"""
 
     def split_on_blank(text: str) -> Iterable[str]:
+        # 按dimensions维度分割（一版用于通识文档）
+        # for block in re.split(rf"\n\s*{{{self.dimensions}}}\s*\n", text):
+
+        # 按空行分割（一版用于问答文档）
         for block in re.split(r"\n\s*\n", text):
             cleaned = block.strip()
             if cleaned:

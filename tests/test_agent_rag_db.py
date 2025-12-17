@@ -1,10 +1,39 @@
-import os
-# from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Milvus
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-# from langchain.chains import RetrievalQA
+"""
+本示例演示如何将 `files` 目录下的 txt 文件按空行分段，写入 Chroma 内存向量库，
+并通过 ReAct Agent 检索回答。
 
-# 1. 大模型与 Embedding 配置
+注意：若是Excel，需额外写python脚本，将列表头转为以下格式（空行分割），问答效果更准。
+------
+问题：
+答案：
+------
+
+"""
+
+from __future__ import annotations
+
+import os
+import re
+from pathlib import Path
+from typing import Iterable
+
+from dotenv import load_dotenv
+from openai import OpenAI
+from langchain_openai import ChatOpenAI
+from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
+from langchain_chroma import Chroma
+import chromadb
+from chromadb.config import Settings
+from langchain.agents import create_agent
+from langchain.tools import tool
+
+
+# 加载模型配置
+_ = load_dotenv()
+
+
+# 配置大模型
 llm = ChatOpenAI(
     api_key=os.getenv("DASHSCOPE_API_KEY"),
     base_url=os.getenv("DASHSCOPE_BASE_URL"),
@@ -12,42 +41,137 @@ llm = ChatOpenAI(
     temperature=0,
 )
 
-embeddings = OpenAIEmbeddings(
+# 创建 OpenAI 客户端
+client = OpenAI(
     api_key=os.getenv("DASHSCOPE_API_KEY"),
     base_url=os.getenv("DASHSCOPE_BASE_URL"),
-    model="text-embedding-v4"          # 通义 Embedding 模型
 )
 
-# 2. 按空行切分 txt
-def load_txt_by_empty_line(path: str):
-    with open(path, encoding="utf-8") as f:
-        text = f.read()
-    # 两个及以上换行符视为段落分隔
-    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
-    return paragraphs
 
-docs = load_txt_by_empty_line("../files/question.txt")
+class DashScopeEmbeddings(Embeddings):
+    """DashScope 兼容的 Embeddings 封装。"""
 
-# 3. 写入 Milvus
-VECTOR_DB_HOST = "120.24.168.78"
-VECTOR_DB_PORT = "7042"
+    def __init__(self, model: str = "text-embedding-v4", dimensions: int = 1024):
+        self.model = model
+        self.dimensions = dimensions
 
-vector_store = Milvus.from_texts(
-    texts=docs,
-    embedding=embeddings,
-    collection_name="paragraphs",
-    connection_args={"host": VECTOR_DB_HOST, "port": VECTOR_DB_PORT},
-    drop_old=True,   # 每次运行重建集合，测试用
-)
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        vectors: list[list[float]] = []
+        for i in range(0, len(texts), 10):
+            chunk = texts[i : i + 10]
+            response = client.embeddings.create(
+                model=self.model,
+                input=chunk,
+                dimensions=self.dimensions,
+            )
+            vectors.extend([item.embedding for item in response.data])
+        return vectors
 
-# 4. 检索 + QA
-# qa = RetrievalQA.from_chain_type(
-#     llm=llm,
-#     chain_type="stuff",
-#     retriever=vector_store.as_retriever(search_kwargs={"k": 3})
-# )
+    def embed_query(self, text: str) -> list[float]:
+        response = client.embeddings.create(
+            model=self.model,
+            input=[text],
+            dimensions=self.dimensions,
+        )
+        return response.data[0].embedding
 
-# query = "请用中文总结全文要点"
-# answer = qa.run(query)
-# print("---- 回答 ----")
-# print(answer)
+
+def load_txt_documents(data_dir: Path) -> list[Document]:
+    """读取目录下的 txt 文件并按空行分割为 Document。"""
+
+    def split_on_blank(text: str) -> Iterable[str]:
+        for block in re.split(r"\n\s*\n", text):
+            cleaned = block.strip()
+            if cleaned:
+                yield cleaned
+
+    documents: list[Document] = []
+    for path in sorted(data_dir.glob("*.txt")):
+        content = path.read_text(encoding="utf-8")
+        for idx, part in enumerate(split_on_blank(content)):
+            documents.append(
+                Document(
+                    page_content=part,
+                    metadata={"source": path.name, "chunk_id": idx},
+                )
+            )
+    if not documents:
+        raise ValueError(f"目录 {data_dir} 下未找到 txt 文档")
+    return documents
+
+
+def build_vector_store(data_dir: Path | None = None) -> Chroma:
+    """读取 txt 文件并构建内存向量库。"""
+    # 默认指向仓库根目录下的 files，而非 tests/files
+    target_dir = data_dir or (Path(__file__).parent.parent / "files")
+    documents = load_txt_documents(target_dir)
+
+    print(f"成功加载 {len(documents)} 个文档到向量库")
+
+    embeddings = DashScopeEmbeddings()
+    
+    # 配置 Chroma 设置
+    chroma_settings = Settings(
+        chroma_server_host="120.24.168.78",
+        chroma_server_http_port=7020
+    )
+    
+    vector_store = Chroma(
+        collection_name="test_collection",
+        embedding_function=embeddings,
+        persist_directory=None,
+        client_settings=chroma_settings
+    )
+    
+    # 清空集合（可选）
+    existing_ids = vector_store.get()["ids"]
+    if existing_ids:
+        vector_store.delete(ids=existing_ids)
+    
+    # 添加文档
+    _ = vector_store.add_documents(documents)
+    
+    return vector_store
+
+
+def create_react_agent(vector_store: Chroma):
+    """基于给定向量库创建带检索工具的 ReAct Agent。"""
+
+    @tool(response_format="content_and_artifact")
+    def retrieve_context(query: str):
+        """基于向量库检索与问题最相关的文本片段。"""
+        retrieved = vector_store.similarity_search(query, k=3)
+        serialized = "\n\n".join(
+            f"[{doc.metadata['source']}#{doc.metadata['chunk_id']}] {doc.page_content}"
+            for doc in retrieved
+        )
+        return serialized, retrieved
+
+    return create_agent(
+        llm,
+        tools=[retrieve_context],
+        system_prompt=(
+            "你可以使用检索工具获得参考资料。回答时结合检索到的内容，"
+            "如有必要可以在答案中简单引用来源标识。"
+        ),
+    )
+
+
+def run_demo():
+    """简单演示：针对 txt 知识库发起提问。"""
+    query = "公司的考勤方式是什么？"
+
+    # 嵌入向量数据库
+    vector_store = build_vector_store()
+
+    print('嵌入完成' + '\n')
+
+    # 检索向量数据库
+    agent = create_react_agent(vector_store)
+    for event in agent.stream({"messages": [{"role": "user", "content": query}]}, stream_mode="values"):
+        event["messages"][-1].pretty_print()
+
+
+if __name__ == "__main__":
+    run_demo()
+
