@@ -38,6 +38,7 @@
 > **前提**：本项目默认你已完成AI核心知识的学习，若没有。
 > 请移步到项目[《AI Core Knowledge》](https://github.com/LarryLi93/AI-Core-Knowledge)进行学习。
 
+![aicore](./img/ai_core.png)
 
 ## 二、安装依赖
 
@@ -51,20 +52,27 @@ pip install -r requirements.txt
   以下为 `requirements.txt` 中的依赖包清单：
 
   ```text
-  pydantic
-  python-dotenv
-  langchain[openai]
-  langchain-community
-  langchain-mcp-adapters
-  langchain-text-splitters
-  langgraph
-  langgraph-cli[inmem]
-  langgraph-supervisor
-  langgraph-checkpoint-sqlite
-  langmem
-  ipynbname
-  fastmcp
-  bs4
+pydantic==2.12.5
+python-dotenv==1.2.1
+langchain[openai]==1.1.2
+langchain-community==0.4.1
+langchain-mcp-adapters==0.2.1
+langchain-text-splitters==1.1.0
+langgraph==1.0.4
+langgraph-cli[inmem]==0.4.7
+langgraph-supervisor==0.0.31
+langgraph-checkpoint-sqlite==3.0.0
+langmem==0.0.30
+ipynbname==2025.8.0.0
+fastmcp==2.13.3
+beautifulsoup4==4.14.3
+grandalf==0.8
+mystmd==1.7.0
+faiss-cpu==1.13.1
+langchain_milvus==0.3.1
+dashscope==1.25.4
+openai>=1.0.0
+aiohttp>=3.0.0
   ```
 </details>
 
@@ -88,6 +96,8 @@ pip install -r requirements.txt
 | 11 | [调试页面](./11.langgraph_cli.ipynb) | 介绍 langgraph-cli 提供的调试页面 |
 | 12 | [开发案例](./12.development_case.ipynb) | 介绍 常见的核心开发案例 |
 | 13 | [商业案例](./13.business_case.ipynb) | 介绍 常见的商业案例 |
+
+---
 
 ## 四、开发案例
 
@@ -125,12 +135,13 @@ pip install -r requirements.txt
 | [/tests/test_store.py](./tests/test_store.py) | 使用 `RedisStore` 快速读写长期记忆 |
 | [/tests/test_router.py](./tests/test_router.py) | 实现一个简单的智能体路由 |
 
+---
 
 > \[!NOTE\]
 > 
 > **承诺**：本教程完全基于 LangGraph v1 编写，不含任何 v0.6 的历史残留。
 
-## 四、调试页面
+## 五、调试页面
 
 `langgraph-cli` 提供了一个可快速启动的调试页面。
 
@@ -140,7 +151,7 @@ langgraph dev
 
 详见 [第11章](./11.langgraph_cli.ipynb)
 
-## 五、延伸阅读
+## 六、延伸阅读
 
 **官方文档：**
 
@@ -154,7 +165,7 @@ langgraph dev
 - [langgraph-101](https://github.com/langchain-ai/langgraph-101)
 - [langchain-academy](https://github.com/langchain-ai/langchain-academy)
 
-## 六、如何贡献
+## 七、如何贡献
 
 我们欢迎任何形式的贡献！
 
@@ -163,6 +174,6 @@ langgraph dev
 - 📝 内容完善 - 帮助改进教程内容
 - 🔧 代码优化 - 提交 Pull Request
 
-## 七、开源协议
+## 八、开源协议
 
 本作品采用 [知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议](http://creativecommons.org/licenses/by-nc-sa/4.0/) 进行许可。
