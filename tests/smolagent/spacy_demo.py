@@ -5,7 +5,7 @@ from smolagents import CodeAgent, OpenAIServerModel, VisitWebpageTool
 model = OpenAIServerModel(
     model_id="deepseek-ai/DeepSeek-V3.1-Terminus",
     api_base="https://api.siliconflow.cn/v1",
-    api_key="sk-kodzewuwqkxlypmgegdjdgvhwntqfegmcamipvcoylribmss", # 记得替换你的Key
+    api_key="sk-kodzewuwqkxlypmgegdjdgvhwntqfegmcamipvco-", # 记得替换你的Key
     max_tokens=256000
 )
 

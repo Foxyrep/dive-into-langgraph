@@ -9,14 +9,14 @@ from qdrant_client.http.models import Distance, VectorParams
 # ==========================================
 # 1. 配置信息
 # ==========================================
-SILICON_API_KEY = "sk-kodzewuwqkxlypmgegdjdgvhwntqfegmcamipvcoylribmss"
+SILICON_API_KEY = "sk-kodzewuwqkxlypmgegdjdgvhwntqfegmcamipvcoy-"
 SILICON_BASE_URL = "https://api.siliconflow.cn/v1"
 LLM_MODEL_ID = "Pro/zai-org/GLM-4.7"
 EMBEDDING_MODEL_ID = "Qwen/Qwen3-Embedding-8B"
 VECTOR_SIZE = 4096  # BGE-M3 维度
 
 # Qdrant 配置
-QDRANT_HOST = "120.24.168.78"
+QDRANT_HOST = "120.--.168.--"
 QDRANT_PORT = 7021
 COLLECTION_NAME = "demo_1227"  # 集合名称
 

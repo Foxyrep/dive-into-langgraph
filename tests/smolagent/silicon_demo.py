@@ -11,7 +11,7 @@ model = OpenAIServerModel(
     api_base="https://api.siliconflow.cn/v1",
 
     # 你提供的 API Key
-    api_key="sk-kodzewuwqkxlypmgegdjdgvhwntqfegmcamipvcoylribmss",
+    api_key="sk-kodzewuwqkxlypmgegdjdgvhwntqfegmc-",
 
     # 稍微调高 max_tokens 以防输出截断
     max_tokens=256000

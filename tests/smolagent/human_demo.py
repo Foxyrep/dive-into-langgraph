@@ -7,7 +7,7 @@ from smolagents import CodeAgent, OpenAIServerModel, tool
 # ==========================================
 # 0. 全局配置
 # ==========================================
-SILICON_API_KEY = "sk-kodzewuwqkxlypmgegdjdgvhwntqfegmcamipvcoylribmss"
+SILICON_API_KEY = "sk-kodzewuwqkxlypmgegdjdgvhwntqfegmcamipvcoylr-"
 SILICON_BASE_URL = "https://api.siliconflow.cn/v1"
 
 model = OpenAIServerModel(

@@ -9,7 +9,7 @@ from langchain_core.documents import Document
 # ==========================================
 # 1. 硅基流动 API 配置
 # ==========================================
-SILICON_API_KEY = "sk-kodzewuwqkxlypmgegdjdgvhwntqfegmcamipvcoylribmss"
+SILICON_API_KEY = "sk-kodzewuwqkxlypmgegdjdgvhwntqfegmcamipvc-"
 SILICON_BASE_URL = "https://api.siliconflow.cn/v1"
 LLM_MODEL_ID = "Pro/zai-org/GLM-4.7"
 
