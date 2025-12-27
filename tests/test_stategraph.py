@@ -7,9 +7,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 
-
 _ = load_dotenv()
-
 
 # 配置大模型服务
 llm = ChatOpenAI(
@@ -64,20 +62,10 @@ def build_graph():
 def demo(query: str = "上海天气怎么样？"):
     graph = build_graph()
 
-    # 生成 ASCII 图（终端可直接看）
-    print(graph.get_graph().draw_ascii())
-
-    # 导出成图片文件
-    png_bytes = graph.get_graph().draw_mermaid_png()
-    with open("./img/stategraph_demo.png", "wb") as f:
-        f.write(png_bytes)
-    print("已输出 ./img/stategraph_demo.png")
-
     # 运行状态图
     response = graph.invoke({"messages": [HumanMessage(content=query)]})
-    return response["messages"]
+    print(response["messages"])
 
 
 if __name__ == "__main__":
-    for msg in demo():
-        msg.pretty_print()
+    demo()
