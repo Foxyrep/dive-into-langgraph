@@ -26,7 +26,7 @@ _ = load_dotenv()
 llm = ChatOpenAI(
     api_key=os.getenv("DASHSCOPE_API_KEY"),
     base_url=os.getenv("DASHSCOPE_BASE_URL"),
-    model="qwen3-coder-plus",
+    model="Qwen/Qwen3-30B-A3B-Instruct-2507",
     temperature=0.7,
 )
 
